@@ -7,7 +7,7 @@ const { Authentication } = require("../middlewares/Authentication");
 const { Blogmodel } = require("../models/blog.model");
 const { AutoEncryptionLoggerLevel } = require("mongodb");
 
-//Sign Up
+//Sign Up route
 
 userRoute.post("/signup",async(req,res)=>{
     const {email,password,name}=req.body;
