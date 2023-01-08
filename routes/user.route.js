@@ -1,65 +1,106 @@
 const express=require("express");
-const { Usermodel } = require("../model/user.model");
-const bcrypt=require("bcryptjs")
-const userRoute=express.Router()  
-const jwt=require("jsonwebtoken")
+const bcrypt=require("bcryptjs");
+const { Usermodel } = require("../models/user.model");
+const userRoute=express.Router();
+const JWT=require("jsonwebtoken");
+const { Authentication } = require("../middlewares/Authentication");
+const { Blogmodel } = require("../models/blog.model");
+const { AutoEncryptionLoggerLevel } = require("mongodb");
 
-
-
-//User login
-userRoute.post("/login",async(req,res)=>{
-  const {email,password}=req.body;
-  if(email&&password){
-        try{
-            const userData=await Usermodel.findOne({email});
-            if(userData?.name.length>0){
-                //user password
-                //hashed password
-                const isMatch=await bcrypt.compare(password,userData.password);
-
-                if(isMatch){
-
-                    //token 
-                    const token=jwt.sign({"userid":userData._id},process.env.JWT)
-                    res.status(200).send({msg:"Login Success",token:token})
-
-                }else{
-                    res.status(400).send({"msg":"Wrong Password"})
-                }
-
-
-            }else{
-                res.status(404).send({"msg":"No Account Found"})
-            }
-
-        }catch(err){
-            res.status(400).send({"msg":err.message})
-        }
-  }else{
-    res.status(400).send({"msg":"Email & password required"})
-  }
-})
-
-
-//Signup
+//Sign Up
 
 userRoute.post("/signup",async(req,res)=>{
-    const {name,email,password}=req.body;
+    const {email,password,name}=req.body;
+    if(email&&password&&name){                             //validating fields
+    const hashedPassword=await bcrypt.hash(password,12)   //hashing password
+        try{
+            const newUser=await Usermodel({...req.body,password:hashedPassword})
+            await newUser.save();                              //saving user in database
+            res.status(200).send({msg:"Account Created Successfully"})
 
-    if(name&&email&&password){
-        try{   
-            const hashed_password=await bcrypt.hash(password,12)
-            const newUser=await Usermodel({...req.body,password:hashed_password})
-
-            await newUser.save();
-
-            res.status(200).send({"msg":"Signup Successfull"})
         }catch(err){
             res.status(500).send({msg:err.message})
         }
+
     }else{
         res.status(400).send({msg:"Validation Failed"})
     }
 })
 
+
+//Login
+
+userRoute.post("/login",async(req,res)=>{
+    const {email,password}= req.body
+    if(email&&password){
+        try{
+            const userDetails=await Usermodel.findOne({email});
+            if(userDetails?.name.length>0){
+            const isMatch=await bcrypt.compare(password,userDetails.password);
+            if(isMatch){
+                const token=await JWT.sign({userid:userDetails._id},"NOTHINGISSECRET")
+                res.status(200).send({msg:"Success",token,data:userDetails})
+            }else{
+                res.status(404).send({msg:"Authentication Failed"})
+            }}else{
+                res.status(404).send({msg:"account not found"})
+            }
+
+
+        }catch(err){
+            res.status(404).send({msg:err.message})
+        }
+
+    }else{
+        res.status(404).send({msg:"All fields are required"})
+    }
+})
+
+//User all blog
+
+userRoute.get("/myblog",Authentication,async(req,res)=>{
+    const userid=req.body.userid
+    try{
+        const myBlog=await Blogmodel.find({author:userid}) 
+        res.status(200).send(myBlog)
+    }catch(err){
+        res.status(500).send({msg:err.message})
+    }
+})
+
+//Update userinfo;
+
+userRoute.patch("/user",Authentication,async(req,res)=>{
+    const userid=req.body.userid;
+
+    try{
+        await Usermodel.findOneAndUpdate({_id:userid},{...req.body})
+        res.status(200).send({msg:"Updated Successfully"})
+    }
+    catch(err){
+        res.status(200).send({msg:err.message})
+    }
+})
+
+//profile page
+
+userRoute.get("/profile",Authentication,async(req,res)=>{
+    const userid=req.body.userid;
+    try{
+        const userDetails=await Usermodel.findOne({_id:userid});
+        res.status(200).send(userDetails)
+    }catch(err){
+        res.status(400).send({err:err.message})
+    }
+})
+
+userRoute.get("/author/:id",async(req,res)=>{
+    const userid=req.params.id;
+    try{
+        const userDetails=await Usermodel.findOne({_id:userid});
+        res.status(200).send({"img":userDetails.img,"bio":userDetails.bio,"author":userDetails.name})
+    }catch(err){
+        res.status(400).send({err:err.message})
+    }
+})
 module.exports={userRoute}
