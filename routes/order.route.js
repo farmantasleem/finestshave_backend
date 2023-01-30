@@ -1,5 +1,6 @@
 const express=require("express");
 const { Authentication } = require("../middleware/Authentication");
+const { Cartmodel } = require("../model/cart.model");
 const { Ordermodel } = require("../model/order.model");
 
 const orderRoute=express.Router();
@@ -25,8 +26,14 @@ orderRoute.get("/",Authentication,async(req,res)=>{
 orderRoute.post("/",Authentication,async(req,res)=>{
     const userid=req.body.userid;
     try{
-        const newOrder=await Ordermodel({...req.body,user:userid});
-        await newOrder.save();
+        const alldata=await Cartmodel.find({user:userid})
+        const Cartdata=await JSON.parse(alldata);
+        let OrdersData=Cartdata.map((e)=>{
+            return {product:e.product._id,user:userid}
+        })
+        const ParsedData=await JSON.stringify(OrdersData)
+        const newOrder=await Ordermodel.insertMany(OrdersData)
+        Cartmodel.deleteMany({user:userid})
         res.status(200).send({"msg":"Order successfull"})
     }catch(err){
         res.status(404).send({"msg":err.message})
