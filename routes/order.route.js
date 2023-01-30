@@ -33,7 +33,7 @@ orderRoute.post("/",Authentication,async(req,res)=>{
         })
         const ParsedData=JSON.stringify(OrdersData)
         const newOrder=await Ordermodel.insertMany(ParsedData)
-      await  Cartmodel.deleteMany({user:userid})
+        Cartmodel.deleteMany({user:userid})
         res.status(200).send({"msg":"Order successfull"})
     }catch(err){
         res.status(404).send({"msg":err.message})
