@@ -27,8 +27,8 @@ orderRoute.post("/",Authentication,async(req,res)=>{
     const userid=req.body.userid;
     try{
         const alldata=await Cartmodel.find({user:userid})
-        const Cartdata=await JSON.parse(alldata);
-        let OrdersData=Cartdata.map((e)=>{
+     
+        let OrdersData=alldata.map((e)=>{
             return {product:e.product._id,user:userid}
         })
        
