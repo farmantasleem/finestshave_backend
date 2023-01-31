@@ -9,11 +9,11 @@ const orderRoute=express.Router();
 // all orders of specific user
 
 orderRoute.get("/",Authentication,async(req,res)=>{
-   const userid=req.body.user;
+   const userid=req.body.userid;
    
    try
    {    
-    const allorders=await Ordermodel.find({user:userid});
+    const allorders=await Ordermodel.find({user:userid}).populate("product");
     res.status(200).send(allorders)
    }
    catch(err){
