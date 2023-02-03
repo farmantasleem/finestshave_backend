@@ -127,8 +127,8 @@ adminRoute.get("/admindata",Authentication,async(req,res)=>{
         if(user?._id){
             if(user?.role=="admin"){
                 const allproduct=await Productmodel.find();
-                const allcart=await Cartmodel.find();
-                const allorder=await Ordermodel.find();
+                const allcart=await Cartmodel.find().populate("user").populate("product");
+                const allorder=await Ordermodel.find().populate("user").populate("product");
                 const alluser=await Usermodel.find()
                 res.status(200).send({
                     allcart,allorder,allproduct,alluser
