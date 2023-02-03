@@ -41,7 +41,7 @@ productRouter.get("/",async(req,res)=>{
      }else if(brand){
          product_data=await Productmodel.find({brand}).skip(toshow||0).limit(9).sort({cost:sorting})
      }else{
-        product_data=await (await Productmodel.find().skip(toshow||0).limit(9).sort({cost:sorting})).sort({"date":-1})
+        product_data=await Productmodel.find().skip(toshow||0).limit(9).sort({cost:sorting}).sort({"date":-1})
      }
         
         res.status(200).send(product_data)
