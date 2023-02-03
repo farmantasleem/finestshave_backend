@@ -119,6 +119,30 @@ adminRoute.get("/user/all",Authentication,async(req,res)=>{
     }
 })
 
+adminRoute.get("/admindata",Authentication,async(req,res)=>{
+    const userid=req.body.userid
+
+    try{
+        const user=await Usermodel.findOne({_id:userid});
+        if(user?._id){
+            if(user?.role=="admin"){
+                const allproduct=await Productmodel.find();
+                const allcart=await Cartmodel.find();
+                const allorder=await Ordermodel.find();
+                const alluser=await Usermodel.find()
+                res.status(200).send({
+                    allcart,allorder,allproduct,alluser
+                })
+            }else{
+                res.status(404).send({"msg":"Not authenticated"})
+            }
+        }else{
+            res.status(404).send({"msg":"Not authenticated"})
+        }
+    }catch(err){
+        res.status(404).send({msg:err.message})
+    }
+})
 
 //get all products
 
