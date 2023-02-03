@@ -6,7 +6,8 @@ const productSchema=mongoose.Schema({
     cost:{type:Number,required:true},
     image:{type:String,required:true},
     category:{type:String,default:"other"},
-    brand:{type:String,default:"other"}
+    brand:{type:String,default:"other"},
+    date:{type:Date,default:Date.now()}
 
 })
 
