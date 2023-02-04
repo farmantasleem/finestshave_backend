@@ -331,4 +331,32 @@ adminRoute.get("/user/limit",Authentication,async(req,res)=>{
     }
 })
 
+
+//Update Order Status
+
+//limited users
+
+adminRoute.patch("/order/:OrderId",Authentication,async(req,res)=>{
+    const userid=req.body.userid
+    const Orderid=req.params.OrderId
+    const status=req.body.status
+
+    try{
+        const user=await Usermodel.findOne({_id:userid});
+        if(user?._id){
+            if(user?.role=="admin"){
+               const orderStatus=await Ordermodel.findOneAndUpdate({_id:Orderid},{status:status});
+               res.status(200).send({msg:"Order Status Updated"})
+            }else{
+                res.status(404).send({"msg":"Not authenticated"})
+            }
+        }else{
+            res.status(404).send({"msg":"Not authenticated"})
+        }
+    }catch(err){
+        res.status(404).send({msg:err.message})
+    }
+})
+
+
 module.exports={adminRoute}
