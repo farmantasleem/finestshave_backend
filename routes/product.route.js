@@ -1,7 +1,8 @@
 const express=require("express");
 const {Productmodel}=require("../model/product.model")
 const productRouter=express.Router();
-const mongoose=require("mongoose")
+const mongoose=require("mongoose");
+const { Refundmodel } = require("../model/refund.model");
 
 //get all the products
 
@@ -109,9 +110,9 @@ productRouter.post("/refund",Authentication,async(req,res)=>{
       
         if(user?._id){
            
-                const data=await Refund({...req.body})
+                const data=await Refundmodel({...req.body})
                 await data.save();
-                res.status(200).send({msg:"Product Added Successfully"})
+                res.status(200).send({msg:"Refund Request Added Successfully"})
            
         }else{
             res.status(404).send({"msg":"Not authenticated"})
