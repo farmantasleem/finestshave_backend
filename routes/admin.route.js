@@ -331,22 +331,17 @@ adminRoute.get("/user/limit",Authentication,async(req,res)=>{
     }
 })
 
-
-//Update Order Status
-
-//limited users
-
-adminRoute.patch("/order/:OrderId",Authentication,async(req,res)=>{
+//delete Order item
+adminRoute.delete("/order/:orderID",Authentication,async(req,res)=>{
     const userid=req.body.userid
-    const Orderid=req.params.OrderId
-    const status=req.body.status
+    const productid=req.params.orderID
 
     try{
         const user=await Usermodel.findOne({_id:userid});
         if(user?._id){
             if(user?.role=="admin"){
-               const orderStatus=await Ordermodel.findOneAndUpdate({_id:Orderid},{status:status});
-               res.status(200).send({msg:"Order Status Updated"})
+                await Ordermodel.findOneAndDelete({_id:productid})
+                res.status(200).send({msg:"Delete Successfully"})
             }else{
                 res.status(404).send({"msg":"Not authenticated"})
             }
@@ -357,6 +352,7 @@ adminRoute.patch("/order/:OrderId",Authentication,async(req,res)=>{
         res.status(404).send({msg:err.message})
     }
 })
+
 
 
 module.exports={adminRoute}
