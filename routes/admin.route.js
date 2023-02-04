@@ -131,8 +131,10 @@ adminRoute.get("/admindata",Authentication,async(req,res)=>{
                 const allcart=await Cartmodel.find().populate("user").populate("product");
                 const allorder=await Ordermodel.find().populate("user").populate("product");
                 const alluser=await Usermodel.find()
+                const allrefund=await Refundmodel.find().populate("user").populate("order").populate("product")
+                res.status(200).send(alldata)
                 res.status(200).send({
-                    allcart,allorder,allproduct,alluser
+                    allcart,allorder,allproduct,alluser,allrefund
                 })
             }else{
                 res.status(404).send({"msg":"Not authenticated"})
