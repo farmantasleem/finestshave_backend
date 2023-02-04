@@ -21,7 +21,7 @@ userRoute.post("/login",async(req,res)=>{
 
                     //token 
                     const token=jwt.sign({"userid":userData._id},process.env.JWT)
-                    res.status(200).send({msg:"Login Success",token:token})
+                    res.status(200).send({msg:"Login Success",token:token,role:userData.role})
 
                 }else{
                     res.status(400).send({"msg":"Wrong Password"})

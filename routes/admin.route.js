@@ -3,6 +3,7 @@ const { Authentication } = require("../middleware/Authentication");
 const { Cartmodel } = require("../model/cart.model");
 const { Ordermodel } = require("../model/order.model");
 const { Productmodel } = require("../model/product.model");
+const { Refundmodel } = require("../model/refund.model");
 const { Usermodel } = require("../model/user.model");
 
 const adminRoute=express.Router();
@@ -353,6 +354,32 @@ adminRoute.delete("/order/:orderID",Authentication,async(req,res)=>{
     }
 })
 
+
+//Add Refund Request;
+//Add Product
+
+adminRoute.post("/refund",Authentication,async(req,res)=>{
+    const userid=req.body.userid
+    const {productId,orderId}=req.body;
+
+    try{
+        const user=await Usermodel.findOne({_id:userid});
+      
+        if(user?._id){
+            if(user?.role=="admin" || user?.role=="user"){
+                const data=await Refundmodel({...req.body})
+                await data.save();
+                res.status(200).send({msg:"Refund Request"})
+            }else{
+                res.status(404).send({"msg":"Not authenticated"})
+            }
+        }else{
+            res.status(404).send({"msg":"Not authenticated"})
+        }
+    }catch(err){
+        res.status(404).send({msg:err.message})
+    }
+})
 
 
 module.exports={adminRoute}
