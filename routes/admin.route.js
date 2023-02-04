@@ -132,7 +132,7 @@ adminRoute.get("/admindata",Authentication,async(req,res)=>{
                 const allorder=await Ordermodel.find().populate("user").populate("product");
                 const alluser=await Usermodel.find()
                 const allrefund=await Refundmodel.find().populate("user").populate("order").populate("product")
-                res.status(200).send(alldata)
+       
                 res.status(200).send({
                     allcart,allorder,allproduct,alluser,allrefund
                 })
