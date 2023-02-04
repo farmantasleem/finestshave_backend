@@ -112,7 +112,7 @@ productRouter.post("/refund",Authentication,async(req,res)=>{
       
         if(user?._id){
            
-                const data=await Refundmodel({...req.body})
+                const data=await Refundmodel({product:productId,order:orderId,user:userid})
                 await data.save();
                 res.status(200).send({msg:"Refund Request Added Successfully"})
            
