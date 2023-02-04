@@ -3,7 +3,6 @@ const { Authentication } = require("../middleware/Authentication");
 const { Cartmodel } = require("../model/cart.model");
 const { Ordermodel } = require("../model/order.model");
 const { Productmodel } = require("../model/product.model");
-const { Refundmodel } = require("../model/refund.model");
 const { Usermodel } = require("../model/user.model");
 
 const adminRoute=express.Router();
@@ -366,10 +365,10 @@ adminRoute.post("/refund",Authentication,async(req,res)=>{
         const user=await Usermodel.findOne({_id:userid});
       
         if(user?._id){
-            if(user?.role=="admin" || user?.role=="user"){
-                const data=await Refundmodel({...req.body})
+            if(user?.role=="admin"){
+                const data=await Refund({...req.body})
                 await data.save();
-                res.status(200).send({msg:"Refund Request"})
+                res.status(200).send({msg:"Product Added Successfully"})
             }else{
                 res.status(404).send({"msg":"Not authenticated"})
             }
@@ -380,6 +379,29 @@ adminRoute.post("/refund",Authentication,async(req,res)=>{
         res.status(404).send({msg:err.message})
     }
 })
+
+adminRoute.patch("/order/:OrderId",Authentication,async(req,res)=>{
+    const userid=req.body.userid
+    const Orderid=req.params.OrderId
+    const status=req.body.status
+
+    try{
+        const user=await Usermodel.findOne({_id:userid});
+        if(user?._id){
+            if(user?.role=="admin"){
+               const orderStatus=await Ordermodel.findOneAndUpdate({_id:Orderid},{status:status});
+               res.status(200).send({msg:"Order Status Updated"})
+            }else{
+                res.status(404).send({"msg":"Not authenticated"})
+            }
+        }else{
+            res.status(404).send({"msg":"Not authenticated"})
+        }
+    }catch(err){
+        res.status(404).send({msg:err.message})
+    }
+})
+
 
 
 module.exports={adminRoute}
